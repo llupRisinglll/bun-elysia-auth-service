@@ -5,7 +5,11 @@
   "devDependencies": {
     "bun-types": "latest"
   },
-  "peerDependencies": {
-    "typescript": "^5.0.0"
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "bun run --watch index.ts"
+  },
+  "dependencies": {
+    "elysia": "latest"
   }
 }
