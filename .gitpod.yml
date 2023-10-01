@@ -1,2 +1,6 @@
 image: gitpod/workspace-bun:latest
 
+tasks:
+  - name: Install Dependencies
+    init: |
+      bun --install
