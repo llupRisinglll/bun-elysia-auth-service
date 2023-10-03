@@ -42,3 +42,4 @@ yarn-error.log*
 package-lock.json
 **/*.bun
 .bun_initialized
+bun.lockb
