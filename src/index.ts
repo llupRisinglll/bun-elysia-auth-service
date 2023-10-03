@@ -5,7 +5,7 @@ import config from './config/config';
  * Starts the server and listens to the specified port.
  * @param {number} port The port to listen on.
  */
-function startServer(port: Number) {
+function startServer(port: number) {
 	const server = app.listen(port, () => {
 		console.log(`Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
 	});
