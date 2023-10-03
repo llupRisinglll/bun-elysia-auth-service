@@ -1,0 +1,17 @@
+{
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    "terminal.integrated.profiles.windows": {
+        "WSL": {
+            "path": "wsl.exe",
+            "icon": "terminal-integrated-ubuntu",
+            "commandLine": "wsl.exe",
+            "colorScheme": "One Half Dark",
+            "source": "ubuntu",
+            "startingDirectory": "${workspaceFolder}"
+        }
+    },
+    "terminal.external.windowsExec": "C:\\Windows\\System32\\cmd.exe",
+    "window.title": "${activeEditorLong}",
+    "window.zoomLevel": 0,
+    "files.autoSave": "off"
+}
