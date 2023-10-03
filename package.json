@@ -7,7 +7,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "bun run --watch index.ts"
+    "dev": "bun run --watch src/index.ts"
   },
   "dependencies": {
     "@elysiajs/jwt": "^0.7.0",

@@ -10,3 +10,4 @@ A pre-built authentication server that uses JSON Web Tokens (JWT) for authentica
 - [ ] Add support for other RDS
 - [ ] Add support for other NoSQL DB
 - [ ] Add support for SMTP
+- [ ] Add a way to easily add a new version of the API
