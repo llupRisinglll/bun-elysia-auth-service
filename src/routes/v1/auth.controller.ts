@@ -37,7 +37,12 @@ export const login : any = async function(request: HTTPRequest)
 	};
 }
 
-export const _verify : any = async function(request: HTTPRequest) {
+/**
+ * A middleware to verify the access token provided in the headers
+ * @param request 
+ * @returns 
+ */
+export const _verifyAccess : any = async function(request: HTTPRequest) {
 	// token looks like 'Bearer vnjaknvijdaknvikbnvreiudfnvriengviewjkdsbnvierj'
 
 	const {access_token, headers, set} = request;
