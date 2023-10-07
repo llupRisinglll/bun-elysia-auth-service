@@ -1,8 +1,10 @@
+import Joi from 'joi';
 import { HTTPRequest } from '../../interfaces/http.interface';
 import httpStatus from 'http-status';
 
 export const signup: any = async function(request: HTTPRequest){
 	// TODO: Support Dynamic; Let the user select what details to require from the user 
+	console.log(request.body);
 	
 	// TODO: Make sure that there is no missing from HTTP request (e.g. Username, Email, Password)
 
@@ -13,6 +15,27 @@ export const signup: any = async function(request: HTTPRequest){
 	// TODO: Send an email verification; Let the user indicate whether they need something like this or not
 
 	return "Sign up controller"
+}
+
+/**
+ * This middleware make sures that the provided data to the signup controler is fine as fuck
+ */
+export const _validateSignup : any = async function(request: HTTPRequest) {
+	const schema = Joi.object({
+		username: Joi.string().min(6).max(15).required(),
+		password: Joi.string().min(6).max(15).required()
+	});
+
+	const {error} = schema.validate(request.body);
+	
+	if (error){
+		request.set.status = httpStatus.BAD_REQUEST;
+
+		return {
+			success: false,
+			message: error.details[0].message 
+		}
+	}
 }
 
 export const login : any = async function(request: HTTPRequest)
