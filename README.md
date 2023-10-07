@@ -6,6 +6,7 @@ A pre-built authentication server that uses JSON Web Tokens (JWT) for authentica
 </p>
 
 ## Upcoming changes
+- [ ] OAUTH way of authenticating instead of username and password
 - [ ] Add support for logging
 - [ ] Add support for other RDS
 - [ ] Add support for other NoSQL DB
