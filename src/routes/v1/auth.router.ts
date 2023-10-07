@@ -4,7 +4,7 @@
 // import * as authController from '../../controller/auth.controller';
 
 import Elysia from "elysia";
-import { login, signup } from "./auth.controller";
+import { login, signup, _verify } from "./auth.controller";
 
 const authRouter = new Elysia({ prefix: 'auth' });
 
@@ -14,6 +14,12 @@ authRouter.post('/signup', signup);
 
 // authRouter.post('/signup', validate(signupSchema), authController.handleSignUp);
 authRouter.post('/login', login);
+
+authRouter.get("/verify", () => { 
+	return "I can see this";
+}, {
+	beforeHandle: _verify
+});
 
 // authRouter.post('/login', validate(loginSchema), authController.handleLogin);
 
