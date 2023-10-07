@@ -11,3 +11,7 @@ A pre-built authentication server that uses JSON Web Tokens (JWT) for authentica
 - [ ] Add support for other NoSQL DB
 - [ ] Add support for SMTP
 - [ ] Add a way to easily add a new version of the API
+
+## File Structure and Coding Convention
+* Controllers are in the `/routes` folder with `.controller` suffix before `.ts` extension. (e.g. `auth.controller.ts`)
+* The middlewares for the routes are located in the `controllers`. They are distinguished from other functions by having a prefix "_" on the function name.
