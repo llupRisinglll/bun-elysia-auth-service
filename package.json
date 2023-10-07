@@ -16,6 +16,7 @@
     "elysia": "latest",
     "http-status": "^1.7.0",
     "joi": "^17.10.2",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "sequelize": "^6.33.0"
   }
 }
