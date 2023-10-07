@@ -33,7 +33,7 @@ yarn-error.log*
 
 # vercel
 .vercel
-
+/mysql-data
 **/*.trace
 **/*.zip
 **/*.tar.gz
