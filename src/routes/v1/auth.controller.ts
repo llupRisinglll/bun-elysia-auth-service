@@ -1,29 +1,32 @@
 import Joi from 'joi';
 import { HTTPRequest } from '../../interfaces/http.interface';
 import httpStatus from 'http-status';
-import User from '../../config/Users.model';
+import User, { UserAttributes } from '../../config/Users.model';
+import { resolve } from 'bun';
+import { Model } from 'sequelize';
 
 
 export const signup: any = async function(request: HTTPRequest){
 	const {body, set} = request;
 	const {username, password } = body;
-
-	// Make sure that the credentials are not in the database. Othewise, send HTTP Conflict
-	const user = await User.findOne({
-		where: { username: username }
-	});
-
-	if (user){
-		set.status = httpStatus.CONFLICT;
-		return {
-			"success": false,
-			"message": httpStatus["409_MESSAGE"]
-		}
-	}
-
-	// See if we can successfull insert data to the db
+	
 	try {
+
+		// Make sure that the credentials are not in the database. Othewise, send HTTP Conflict
+		const user = await User.findOne({
+			where: { username: username }
+		});
+
+		if (user){
+			set.status = httpStatus.CONFLICT;
+			return {
+				"success": false,
+				"message": httpStatus["409_MESSAGE"]
+			}
+		}
 		const hashedPassword = await Bun.password.hash(password);
+	
+		// See if we can successfull insert data to the db
 		await User.create({
 			username: username,
 			password: hashedPassword
@@ -47,7 +50,7 @@ export const signup: any = async function(request: HTTPRequest){
 /**
  * This middleware make sures that the provided data to the signup controler is fine as fuck
  */
-export const _validateSignup : any = async function(request: HTTPRequest) {
+export const _validateCredentials : any = async function(request: HTTPRequest) {
 	const schema = Joi.object({
 		username: Joi.string().min(6).max(15).required(),
 		password: Joi.string().min(6).max(15).required()
@@ -67,24 +70,49 @@ export const _validateSignup : any = async function(request: HTTPRequest) {
 
 export const login : any = async function(request: HTTPRequest)
 {
-	const {access_token} = request;
+	const {access_token, body, set} = request;
+	const {username, password } = body;
 
-	// TODO: Make sure that there is no missing from HTTP request (e.g. Username, Email, Password)
+	try {
+		//  Fetch the matching credentials from the DB. Send HTTP Unauthorized otherwise
+		const user = await User.findOne({
+			where: { username: username },
+		}) as UserAttributes | null;
 
-	// TODO: Fetch the matching credentials from the DB. Send HTTP Unauthorized otherwise
+		if (!user) {
+			set.status = httpStatus.UNAUTHORIZED;
+			return {
+				"success": false,
+				"message": httpStatus["401_NAME"]
+			}
+		}
 
-	// TODO: Validate the encrypted password
+		// Check if the password provided is correct
+		const isMatch = await Bun.password.verify(password, user.password);
+		if (!isMatch){
+			set.status = httpStatus.UNAUTHORIZED;
+			return {
+				"success": false,
+				"message": httpStatus["401_NAME"]
+			}
+		}
 
-	// TODO: Provide the access token
+		// Provide the access token
+		const generatedAccessToken = await access_token.sign({
+			userId: user.id as number
+		});
 
-	const generatedAccessToken = await access_token.sign({
-		userId: "asd" // TODO: Change to the actual id that is provided
-	});
-
-	return {
-		"success": true,
-		"access_token": generatedAccessToken
-	};
+		return {
+			"success": true,
+			"access_token": generatedAccessToken
+		};	
+	} catch (error) {
+		set.status = httpStatus.INTERNAL_SERVER_ERROR
+		return {
+			"success": false,
+			"message": httpStatus["500_NAME"]
+		}
+	}
 }
 
 /**
