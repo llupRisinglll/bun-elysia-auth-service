@@ -2,18 +2,18 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from './database';
 
 const TokenTypes = {
-	Refresh: 'refresh_token',
-	Access: 'access_token',
-	Revoked_Access: 'revoked_access_token',
-	Revoked_Refresh: 'revoked_refresh_token',
+	Refresh: 'refresh',
+	RevokedAccess: 'revoked_access',
+	RevokedRefresh: 'revoked_refresh',
 };
 
 interface TokenAttributes {
-	id: number;
+	id?: number;
 	userId: number;
+	type: string;
 	token: string;
-	createdAt: Date;
-	updatedAt: Date;
+	createdAt?: Date;
+	updatedAt?: Date;
 }
 
 class Token extends Model<TokenAttributes> { }
@@ -29,7 +29,7 @@ Token.init(
 			type: DataTypes.INTEGER,
 			allowNull: false,
 		},
-		token: {
+		type: {
 			type: DataTypes.STRING,
 			allowNull: false,
 			validate: {
@@ -38,6 +38,10 @@ Token.init(
 					msg: 'Invalid token type',
 				},
 			},
+		},
+		token: {
+			type: DataTypes.STRING,
+			allowNull: false,
 		},
 		createdAt: {
 			type: DataTypes.DATE,
