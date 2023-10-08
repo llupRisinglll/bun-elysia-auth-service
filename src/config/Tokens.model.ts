@@ -3,8 +3,7 @@ import sequelize from './database';
 
 const TokenTypes = {
 	Refresh: 'refresh',
-	RevokedAccess: 'revoked_access',
-	RevokedRefresh: 'revoked_refresh',
+	RevokedAccess: 'revoked_access'
 };
 
 interface TokenAttributes {
