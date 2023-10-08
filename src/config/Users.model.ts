@@ -2,12 +2,12 @@ import { DataTypes, Model } from 'sequelize';
 import sequelize from './database';
 
 interface UserAttributes {
-	id: number;
+	id?: number;
 	username: string;
 	password: string;
-	createdAt: Date;
-	updatedAt: Date;
-	payload: {
+	createdAt?: Date;
+	updatedAt?: Date;
+	payload?: {
 		created: Date;
 		updated: Date;
 		[key: string]: any; // Other dynamic payload properties
@@ -44,7 +44,7 @@ User.init(
 			field: 'updated_at',
 		},
 		payload: {
-			type: DataTypes.JSONB,
+			type: DataTypes.JSON,
 		},
 	},
 	{

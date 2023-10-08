@@ -1,20 +1,47 @@
 import Joi from 'joi';
 import { HTTPRequest } from '../../interfaces/http.interface';
 import httpStatus from 'http-status';
+import User from '../../config/Users.model';
+
 
 export const signup: any = async function(request: HTTPRequest){
-	// TODO: Support Dynamic; Let the user select what details to require from the user 
-	console.log(request.body);
-	
-	// TODO: Make sure that there is no missing from HTTP request (e.g. Username, Email, Password)
+	const {body, set} = request;
+	const {username, password } = body;
 
-	// TODO: Make sure that the credentials are not in the database. Othewise, send HTTP Conflict
-	
-	// TODO: Encrypt the password before storing to the DB
+	// Make sure that the credentials are not in the database. Othewise, send HTTP Conflict
+	const user = await User.findOne({
+		where: { username: username }
+	});
 
-	// TODO: Send an email verification; Let the user indicate whether they need something like this or not
+	if (user){
+		set.status = httpStatus.CONFLICT;
+		return {
+			"success": false,
+			"message": httpStatus["409_MESSAGE"]
+		}
+	}
 
-	return "Sign up controller"
+	// See if we can successfull insert data to the db
+	try {
+		const hashedPassword = await Bun.password.hash(password);
+		await User.create({
+			username: username,
+			password: hashedPassword
+		});
+
+		set.status = httpStatus.CREATED;
+
+		return {
+			"success": true,
+			"message": `Congrats, your account ${username} has been created`
+		}
+	} catch (error) {
+		set.status = httpStatus.INTERNAL_SERVER_ERROR
+		return {
+			"success": false,
+			"message": httpStatus["500_NAME"]
+		}
+	}
 }
 
 /**

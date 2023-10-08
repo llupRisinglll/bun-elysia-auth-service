@@ -91,7 +91,7 @@ const config = {
 	},
 	database: {
 		mysql: {
-			host: 'mysql', // Connect to the docker container's internal network
+			host: '127.0.0.1', // Connect to the docker container's internal network
 			database: validatedEnv.MYSQL_DATABASE,
 			username: validatedEnv.MYSQL_USER,
 			password: validatedEnv.MYSQL_PASSWORD
