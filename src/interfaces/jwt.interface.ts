@@ -1,6 +1,6 @@
 import { JWTPayloadSpec } from "@elysiajs/jwt";
 
-interface expectedPayload{
+export interface expectedPayload{
 	userId: string | number
 }
 

@@ -3,7 +3,7 @@ import { HTTPRequest } from '../../interfaces/http.interface';
 import httpStatus from 'http-status';
 import User, { UserAttributes } from '../../config/Users.model';
 import Token from '../../config/Tokens.model';
-
+import { expectedPayload } from '../../interfaces/jwt.interface';
 
 export const signup: any = async function(request: HTTPRequest){
 	const {body, set} = request;
@@ -162,6 +162,62 @@ export const logout : any = async function(request: HTTPRequest)
 			"message": error.message ?? httpStatus["500_NAME"]
 		}
 	}
+}
+
+export const refresh : any = async function(request: HTTPRequest)
+{
+	// make sure that the refresh token is provided and not revoked
+	const {refresh_token: refresh_token_generator, set, body, UserData} = request;
+	const refresh_token = body.refresh_token ?? null;
+
+	if (!refresh_token){
+		set.status = httpStatus.UNAUTHORIZED;
+		return {
+			"success": false,
+			"message": "Missing refresh_token"
+		}
+	}
+
+	const foundRefreshToken = await Token.findOne({
+		where: {
+			token: refresh_token,
+			type: 'refresh'
+		}
+	});
+
+	// Make sure that the token is valid and is for correct user id
+	const hasValidTokenData = await refresh_token_generator.verify(refresh_token) as expectedPayload;
+
+	if (!foundRefreshToken || !hasValidTokenData){
+
+		console.log(!foundRefreshToken || !hasValidTokenData);
+		set.status = httpStatus.UNAUTHORIZED;
+		return {
+			"success": false,
+			"message": "Invalid refresh_token"
+		}
+	}
+
+	if (hasValidTokenData.userId !== UserData.userId){
+		set.status = httpStatus.FORBIDDEN;
+		return {
+			"success": false,
+			"message": "Data mismatch"
+		}
+	}
+
+	// TODO: Detect malicious refresh of tokens
+
+	// generate a new access token
+	const newAccessToken = await refresh_token_generator.sign({ 
+		userId: hasValidTokenData.userId
+	});
+
+	return {
+		"success": true,
+		"access_token": newAccessToken,
+		"refresh_token": refresh_token
+	};
 }
 
 /**
