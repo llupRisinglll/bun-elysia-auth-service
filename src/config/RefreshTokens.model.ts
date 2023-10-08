@@ -1,15 +1,24 @@
 import { DataTypes, Model } from 'sequelize';
 import sequelize from './database';
 
-interface RefreshTokenAttributes {
+const TokenTypes = {
+	Refresh: 'refresh_token',
+	Access: 'access_token',
+	Revoked_Access: 'revoked_access_token',
+	Revoked_Refresh: 'revoked_refresh_token',
+};
+
+interface TokenAttributes {
 	id: number;
 	userId: number;
 	token: string;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
-class RefreshToken extends Model<RefreshTokenAttributes> { }
+class Token extends Model<TokenAttributes> { }
 
-RefreshToken.init(
+Token.init(
 	{
 		id: {
 			type: DataTypes.INTEGER,
@@ -23,15 +32,31 @@ RefreshToken.init(
 		token: {
 			type: DataTypes.STRING,
 			allowNull: false,
+			validate: {
+				isIn: {
+					args: [Object.values(TokenTypes)],
+					msg: 'Invalid token type',
+				},
+			},
+		},
+		createdAt: {
+			type: DataTypes.DATE,
+			allowNull: false,
+			defaultValue: DataTypes.NOW,
+		},
+		updatedAt: {
+			type: DataTypes.DATE,
+			allowNull: false,
+			defaultValue: DataTypes.NOW,
 		},
 	},
 	{
 		sequelize,
-		modelName: 'RefreshToken',
-		tableName: 'refresh_tokens',
+		modelName: 'Token',
+		tableName: 'tokens',
 	}
 );
 
 sequelize.sync();
 
-export default RefreshToken;
+export default Token;

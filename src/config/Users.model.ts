@@ -8,8 +8,6 @@ export interface UserAttributes {
 	createdAt?: Date;
 	updatedAt?: Date;
 	payload?: {
-		created: Date;
-		updated: Date;
 		[key: string]: any; // Other dynamic payload properties
 	};
 }
