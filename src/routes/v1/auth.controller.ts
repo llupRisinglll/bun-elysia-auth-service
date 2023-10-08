@@ -226,7 +226,7 @@ export const refresh : any = async function(request: HTTPRequest)
  * @returns 
  */
 export const _verifyAccess : any = async function(request: HTTPRequest) {
-	// token looks like 'Bearer vnjaknvijdaknvikbnvreiudfnvriengviewjkdsbnvierj'
+	// token looks like 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJ1c2VySWQiOjEsImV4cCI6MTY5Njg2MDA3N30.4lqsJaA3zH4wBxpah-TLZZPj8P_64rjOR_O8015C9Os'
 
 	const {access_token, headers, set} = request;
 
