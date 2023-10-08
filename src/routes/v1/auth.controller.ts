@@ -2,8 +2,7 @@ import Joi from 'joi';
 import { HTTPRequest } from '../../interfaces/http.interface';
 import httpStatus from 'http-status';
 import User, { UserAttributes } from '../../config/Users.model';
-import { resolve } from 'bun';
-import { Model } from 'sequelize';
+import Token from '../../config/Tokens.model';
 
 
 export const signup: any = async function(request: HTTPRequest){
@@ -38,11 +37,11 @@ export const signup: any = async function(request: HTTPRequest){
 			"success": true,
 			"message": `Congrats, your account ${username} has been created`
 		}
-	} catch (error) {
+	} catch (error:any) {
 		set.status = httpStatus.INTERNAL_SERVER_ERROR
 		return {
 			"success": false,
-			"message": httpStatus["500_NAME"]
+			"message": error.message ?? httpStatus["500_NAME"]
 		}
 	}
 }
@@ -70,7 +69,7 @@ export const _validateCredentials : any = async function(request: HTTPRequest) {
 
 export const login : any = async function(request: HTTPRequest)
 {
-	const {access_token, body, set} = request;
+	const {access_token, refresh_token, body, set} = request;
 	const {username, password } = body;
 
 	try {
@@ -97,20 +96,70 @@ export const login : any = async function(request: HTTPRequest)
 			}
 		}
 
-		// Provide the access token
-		const generatedAccessToken = await access_token.sign({
-			userId: user.id as number
+		// Generate the tokens and send them back to the user
+		const [generatedAccessToken, generatedRefreshToken] = await Promise.all([
+			access_token.sign({ userId: user.id as number }),
+			refresh_token.sign({ userId: user.id as number })
+		]);
+
+		// Store the refresh token in the RefreshToken model
+		await Token.create({
+			userId: user.id as number,
+			token: generatedRefreshToken,
+			type: 'refresh'
 		});
 
 		return {
 			"success": true,
-			"access_token": generatedAccessToken
-		};	
-	} catch (error) {
+			"access_token": generatedAccessToken,
+			"refresh_token": generatedRefreshToken
+		};
+	} catch (error: any) {
 		set.status = httpStatus.INTERNAL_SERVER_ERROR
 		return {
 			"success": false,
-			"message": httpStatus["500_NAME"]
+			"message": error.message ?? httpStatus["500_NAME"]
+		}
+	}
+}
+
+export const logout : any = async function(request: HTTPRequest)
+{
+	const {set, headers, body} = request;
+
+	const authHeader = headers?.authorization;
+	const access_token: string | undefined = authHeader.split(' ')[1];
+
+	try {
+		// if access_token is found in the headers, upsert it to the revoked_access in the tokens table, always make sure that type is 'revoked_access'
+		if (access_token){
+			await Token.upsert({
+				userId: request.UserData.userId as number,
+				token: access_token,
+				type: 'revoked_access'
+			});
+		}
+
+		// if refresh_token is found in the body, delete it from the database
+		if (body.refresh_token){
+			await Token.destroy({
+				where: {
+					token: body.refresh_token,
+					type: 'refresh'
+				}
+			});
+		}
+
+		set.status = httpStatus.OK;
+		return {
+			"success": true,
+			"message": "You have been logged out"
+		}
+	} catch (error:any) {
+		set.status = httpStatus.INTERNAL_SERVER_ERROR
+		return {
+			"success": false,
+			"message": error.message ?? httpStatus["500_NAME"]
 		}
 	}
 }
@@ -149,6 +198,28 @@ export const _verifyAccess : any = async function(request: HTTPRequest) {
 		set.status = httpStatus.FORBIDDEN;
 		response.message = httpStatus["403_NAME"];
 		return response;
+	}
+
+	try {
+		// make sure that the token is not in the revoked_access in Tokens table
+		const isRevokedTOken = await Token.findOne({
+			where: {
+				token: token,
+				type: 'revoked_access'
+			}
+		});
+
+		if (isRevokedTOken){
+			set.status = httpStatus.UNAUTHORIZED;
+			response.message = "ACCESS_EXPIRED";
+			return response;
+		}			
+	} catch (error: any) {
+		set.status = httpStatus.INTERNAL_SERVER_ERROR
+		return {
+			"success": false,
+			"message": error.message ?? httpStatus["500_NAME"]
+		}
 	}
 
 	request.UserData = payloadContent;
