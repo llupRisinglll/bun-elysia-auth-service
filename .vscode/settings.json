@@ -1,5 +1,11 @@
 {
 	"terminal.integrated.defaultProfile.windows": "bash",
 	"terminal.integrated.defaultProfile.mac": "bash",
-	"terminal.integrated.defaultProfile.linux": "bash"
-  }
+	"terminal.integrated.defaultProfile.linux": "bash",
+	"terminal.integrated.profiles.linux": {
+		"bash": {
+		  "path": "host-spawn",
+		  "args": ["bash"]
+		}
+	  }  
+}
